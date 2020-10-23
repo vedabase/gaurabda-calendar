@@ -1,12 +1,12 @@
 from gaurabda.GCEnums.CoreEventType import *
 from gaurabda.GCEnums.KalaType import *
 from gaurabda.GCEnums.GCDS import *
-from gaurabda.GCGregorianDate import GCGregorianDate,Today
+from gaurabda.GCGregorianDate import GCGregorianDate, Today
 from gaurabda.GCLocation import GCLocation
 import gaurabda.GCTimeZone as GCTimeZone
-from gaurabda.GCSunData import SUNDATA,CalculateKala
-from gaurabda.GCMoonData import MOONDATA,GetNextMoonRasi
-from gaurabda.GCStringBuilder import GCStringBuilder,SBTF_RTF,SBTF_TEXT
+from gaurabda.GCSunData import SUNDATA, CalculateKala
+from gaurabda.GCMoonData import MOONDATA, GetNextMoonRasi
+from gaurabda.GCStringBuilder import GCStringBuilder, SBTF_RTF, SBTF_TEXT
 import gaurabda.GCTithi as GCTithi
 import gaurabda.GCNaksatra as GCNaksatra
 import gaurabda.GCSankranti as GCSankranti
@@ -17,7 +17,7 @@ import gaurabda.GCRasi as GCRasi
 import gaurabda.GCStrings as GCStrings
 import gaurabda.GCDisplaySettings as GCDisplaySettings
 import gaurabda.GCLayoutData as GCLayoutData
-from math import ceil,floor
+from math import ceil, floor
 import gaurabda.GCUT as GCUT
 import datetime
 
@@ -30,7 +30,7 @@ class TDayEvent:
         self.nDst = 0
         self.julianDay = 0
 
-    def Set(self,de):
+    def Set(self, de):
         nType = de.nType
         nData = de.nData
         Time.Set(de.Time)
@@ -70,6 +70,7 @@ class TDayEvent:
         else:
             return ''
 
+
 class TCoreEvents:
     header_text = {
         CCTYPE_DATE: " DATE ",
@@ -89,6 +90,7 @@ class TCoreEvents:
         CCTYPE_M_RASI: " MOON RASI ",
         CCTYPE_ASCENDENT: " ASCENDENT "
     }
+
     def __init__(self):
         self.m_vcStart = GCGregorianDate()
         self.m_vcEnd = GCGregorianDate()
@@ -101,19 +103,18 @@ class TCoreEvents:
         p = TDayEvent()
         self.p_events.append(p)
 
-
         if inDst == 1:
-            if (inTime.shour >= 2/24.0):
-                inTime.shour += 1/24.0
+            if (inTime.shour >= 2 / 24.0):
+                inTime.shour += 1 / 24.0
                 inTime.NormalizeValues()
                 p.nDst = 1
         elif inDst == 2:
-            inTime.shour += 1/24.0
+            inTime.shour += 1 / 24.0
             inTime.NormalizeValues()
             p.nDst = 1
         elif inDst == 3:
-            if (inTime.shour <= 2/24.0):
-                inTime.shour += 1/24.0
+            if (inTime.shour <= 2 / 24.0):
+                inTime.shour += 1 / 24.0
                 inTime.NormalizeValues()
                 p.nDst = 1
         p.Time.Set(inTime)
@@ -124,9 +125,9 @@ class TCoreEvents:
         return True
 
     def Sort(self):
-        self.p_events = sorted(self.p_events, key = lambda k: k.julianDay)
+        self.p_events = sorted(self.p_events, key=lambda k: k.julianDay)
 
-    def CalculateEvents(self,loc,vcStart,vcEnd):
+    def CalculateEvents(self, loc, vcStart, vcEnd):
         sun = SUNDATA()
         ndst = 0
 
@@ -137,8 +138,8 @@ class TCoreEvents:
         vcNext = GCGregorianDate()
         earth = loc.GetEarthData()
 
-        vc = GCGregorianDate(date = vcStart)
-        vcAdd = GCGregorianDate(date = vcStart)
+        vc = GCGregorianDate(date=vcStart)
+        vcAdd = GCGregorianDate(date=vcStart)
         vcAdd.InitWeekDay()
 
         previousLongitude = -100
@@ -172,7 +173,7 @@ class TCoreEvents:
                 vcAdd.shour = sunRise
                 todaySunriseHour = sunRise
                 if (previousLongitude < -10):
-                    prevSunrise = GCGregorianDate(date = vcAdd)
+                    prevSunrise = GCGregorianDate(date=vcAdd)
                     prevSunrise.PreviousDay()
                     sun.SunCalc(prevSunrise, earth)
                     previousSunriseHour = sun.rise.GetDayTime() - 1
@@ -184,17 +185,17 @@ class TCoreEvents:
                 r1 = GCMath.putIn360(previousLongitude - ayan) / 30
                 r2 = GCMath.putIn360(todayLongitude - ayan) / 30
 
-                while(r2 > r1 + 13):
+                while (r2 > r1 + 13):
                     r2 -= 12.0
-                while(r2 < r1 + 11):
+                while (r2 < r1 + 11):
                     r2 += 12.0
 
                 a = (r2 - r1) / (todaySunriseHour - previousSunriseHour)
                 b = r2 - a * todaySunriseHour
 
                 tr = ceil(r1)
-                for tr in range(ceil(r1),ceil(r2)):
-                    tm = ( tr - b ) / a
+                for tr in range(ceil(r1), ceil(r2)):
+                    tm = (tr - b) / a
                     if (tm > fromTimeLimit):
                         vcNext.Set(vcAdd)
                         vcNext.shour = tm
@@ -206,28 +207,28 @@ class TCoreEvents:
                 fromTimeLimit = previousSunriseHour
 
             if (GCDisplaySettings.getValue(COREEVENTS_RAHUKALAM)):
-                r1,r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek,KT_RAHU_KALAM)
+                r1, r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_RAHU_KALAM)
                 vcAdd.shour = r1
                 self.AddEvent(vcAdd, CCTYPE_KALA_START, KT_RAHU_KALAM, ndst)
                 vcAdd.shour = r2
                 self.AddEvent(vcAdd, CCTYPE_KALA_END, KT_RAHU_KALAM, ndst)
 
             if (GCDisplaySettings.getValue(COREEVENTS_YAMAGHANTI)):
-                r1,r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_YAMA_GHANTI)
+                r1, r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_YAMA_GHANTI)
                 vcAdd.shour = r1
                 self.AddEvent(vcAdd, CCTYPE_KALA_START, KT_YAMA_GHANTI, ndst)
                 vcAdd.shour = r2
                 self.AddEvent(vcAdd, CCTYPE_KALA_END, KT_YAMA_GHANTI, ndst)
 
             if (GCDisplaySettings.getValue(COREEVENTS_GULIKALAM)):
-                r1,r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_GULI_KALAM)
+                r1, r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_GULI_KALAM)
                 vcAdd.shour = r1
                 self.AddEvent(vcAdd, CCTYPE_KALA_START, KT_GULI_KALAM, ndst)
                 vcAdd.shour = r2
                 self.AddEvent(vcAdd, CCTYPE_KALA_END, KT_GULI_KALAM, ndst)
 
             if (GCDisplaySettings.getValue(COREEVENTS_ABHIJIT_MUHURTA)):
-                r1,r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_ABHIJIT)
+                r1, r2 = CalculateKala(sunRise, sunSet, vcAdd.dayOfWeek, KT_ABHIJIT)
                 if (r1 > 0 and r2 > 0):
                     vcAdd.shour = r1
                     self.AddEvent(vcAdd, CCTYPE_KALA_START, KT_ABHIJIT, ndst)
@@ -291,7 +292,7 @@ class TCoreEvents:
             vcAdd.Set(vc)
             vcAdd.shour = 0.0
             while vcAdd.IsBeforeThis(vcEnd):
-                date,nData = GCSankranti.GetNextSankranti(vcAdd)
+                date, nData = GCSankranti.GetNextSankranti(vcAdd)
                 vcNext.Set(date)
                 if (vcNext.GetDayInteger() < vcEnd.GetDayInteger()):
                     vcNext.InitWeekDay()
@@ -325,7 +326,8 @@ class TCoreEvents:
                 if (vcNext.GetDayInteger() < vcEnd.GetDayInteger()):
                     vcNext.InitWeekDay()
                     ndst = GCTimeZone.determineDaylightChange(vcNext, loc.m_nTimezoneId)
-                    self.AddEvent(vcNext, CCTYPE_CONJ, GCRasi.GetRasi(dlong, GCAyanamsha.GetAyanamsa(vcNext.GetJulianComplete())), ndst)
+                    self.AddEvent(vcNext, CCTYPE_CONJ,
+                                  GCRasi.GetRasi(dlong, GCAyanamsha.GetAyanamsa(vcNext.GetJulianComplete())), ndst)
                 else:
                     break
                 vcAdd.Set(vcNext)
@@ -348,11 +350,11 @@ class TCoreEvents:
         if self.b_sorted:
             self.Sort()
 
-    def formatText(self,stream):
+    def formatText(self, stream):
         sb = GCStringBuilder(stream)
         sb.Format = SBTF_TEXT
 
-        stream.write("Events from {} to {}.\r\n\r\n".format( self.m_vcStart, self.m_vcEnd))
+        stream.write("Events from {} to {}.\r\n\r\n".format(self.m_vcStart, self.m_vcEnd))
         stream.write("{}\r\n\r\n".format(self.m_location.m_strFullName))
 
         prevd = GCGregorianDate()
@@ -374,23 +376,29 @@ class TCoreEvents:
                 sb.AppendLine()
                 last_header = new_header
 
-            stream.write("            {} {}    {}".format(dnr.Time.time_str(), GCStrings.GetDSTSignature(dnr.nDst), dnr.EventText()))
+            stream.write("            {} {}    {}".format(dnr.Time.time_str(), GCStrings.GetDSTSignature(dnr.nDst),
+                                                          dnr.EventText()))
             sb.AppendLine()
 
         sb.AppendLine()
         sb.AppendNote()
         return 1
 
-    def formatXml(self,strXml):
-        strXml.write("<xml>\r\n<program version=\"{}\">\r\n<location longitude=\"{}\" latitude=\"{}\" timezone=\"{}\" dst=\"{}\" />\n".format(GCStrings.getString(130), self.m_location.m_fLongitude, self.m_location.m_fLatitude , self.m_location.m_fTimezone, GCTimeZone.GetTimeZoneName(self.m_location.m_nTimezoneId)))
+    def formatXml(self, strXml):
+        strXml.write(
+            "<xml>\r\n<program version=\"{}\">\r\n<location longitude=\"{}\" latitude=\"{}\" timezone=\"{}\" dst=\"{}\" />\n".format(
+                GCStrings.getString(130), self.m_location.m_fLongitude, self.m_location.m_fLatitude,
+                self.m_location.m_fTimezone, GCTimeZone.GetTimeZoneName(self.m_location.m_nTimezoneId)))
 
         for dnr in self.p_events:
-            strXml.write("  <event type=\"{}\" date=\"{}\" time=\"{}\" dst=\"{}\" />\n".format(dnr.EventText(), str(dnr.Time), dnr.Time.time_str(), dnr.nDst))
+            strXml.write(
+                "  <event type=\"{}\" date=\"{}\" time=\"{}\" dst=\"{}\" />\n".format(dnr.EventText(), str(dnr.Time),
+                                                                                      dnr.Time.time_str(), dnr.nDst))
 
         strXml.write("</xml>\n")
         return 1
 
-    def formatRtf(self,stream):
+    def formatRtf(self, stream):
         sb = GCStringBuilder(stream)
         sb.Format = SBTF_RTF
         sb.fontSizeH1 = GCLayoutData.textSizeH1
@@ -402,7 +410,7 @@ class TCoreEvents:
 
         sb.AppendHeader1("Events")
 
-        stream.write("\\par from {} to {}.\\par\r\n\\par\r\n".format( self.m_vcStart, self.m_vcEnd))
+        stream.write("\\par from {} to {}.\\par\r\n\\par\r\n".format(self.m_vcStart, self.m_vcEnd))
         stream.write("{}\\par\r\n\\par\r\n".format(self.m_location.m_strFullName))
 
         prevd = GCGregorianDate()
@@ -424,22 +432,25 @@ class TCoreEvents:
                 sb.AppendLine()
                 last_header = new_header
 
-            stream.write("\\par            {} {}    {}".format(dnr.Time.time_str(), GCStrings.GetDSTSignature(dnr.nDst), dnr.EventText()))
+            stream.write("\\par            {} {}    {}".format(dnr.Time.time_str(), GCStrings.GetDSTSignature(dnr.nDst),
+                                                               dnr.EventText()))
 
         sb.AppendLine()
         sb.AppendNote()
         sb.AppendDocumentTail()
         return 1
 
-
-    def writeHtml(self,stream):
+    def writeHtml(self, stream):
         stream.write("<html>\n<head>\n<title>Core Events</title>\n\n")
-        stream.write("<style>\n<!--\nbody {\n  font-family:Verdana;\n  font-size:11pt;\n}\n\ntd.hed {\n  font-size:11pt;\n  font-weight:bold;\n")
-        stream.write("  background:#aaaaaa;\n  color:white;\n  text-align:center;\n  vertical-align:center;\n  padding-left:15pt;\n  padding-right:15pt;\n")
+        stream.write(
+            "<style>\n<!--\nbody {\n  font-family:Verdana;\n  font-size:11pt;\n}\n\ntd.hed {\n  font-size:11pt;\n  font-weight:bold;\n")
+        stream.write(
+            "  background:#aaaaaa;\n  color:white;\n  text-align:center;\n  vertical-align:center;\n  padding-left:15pt;\n  padding-right:15pt;\n")
         stream.write("  padding-top:5pt;\n  padding-bottom:5pt;\n}\n-->\n</style>\n")
         stream.write("</head>\n")
         stream.write("<body>\n\n")
-        stream.write("<h1 align=center>Events</h1>\n<p align=center>From {} to {}.</p>\n\n".format( self.m_vcStart, self.m_vcEnd))
+        stream.write(
+            "<h1 align=center>Events</h1>\n<p align=center>From {} to {}.</p>\n\n".format(self.m_vcStart, self.m_vcEnd))
 
         stream.write("<p align=center>{}</p>\n".format(self.m_location.m_strFullName))
 
@@ -461,23 +472,25 @@ class TCoreEvents:
                 stream.write(f"<td class=\"hed\" colspan=2>{new_header}</td></tr>\n<tr>\n")
                 last_header = new_header
 
-            stream.write("<td>{}</td><td>{}</td></tr><tr>\n".format(dnr.EventText(), dnr.Time.time_str() ))
+            stream.write("<td>{}</td><td>{}</td></tr><tr>\n".format(dnr.EventText(), dnr.Time.time_str()))
 
         stream.write("</tr></table>\n")
-        stream.write("<hr align=center width=\"50%%\">\n<p align=center>Generated by {}</p>".format(GCStrings.getString(130)))
+        stream.write(
+            "<hr align=center width=\"50%%\">\n<p align=center>Generated by {}</p>".format(GCStrings.getString(130)))
         stream.write("</body>\n</html>\n")
         return 1
 
-    def write(self,stream,format='html',layout='list'):
-        if format=='plain':
+    def write(self, stream, format='html', layout='list'):
+        if format == 'plain':
             self.formatText(stream)
-        elif format=='rtf':
+        elif format == 'rtf':
             self.formatRtf(stream)
-        elif format=='xml':
+        elif format == 'xml':
             self.formatXml(stream)
-        elif format=='html':
+        elif format == 'html':
             self.writeHtml(stream)
-            
+
+
 def unittests():
     GCUT.info('core events results')
     loc = GCLocation(data={
@@ -488,20 +501,19 @@ def unittests():
     })
     earth = loc.GetEarthData()
     today = Today()
-    future = GCGregorianDate(date = today, addDays=100)
+    future = GCGregorianDate(date=today, addDays=100)
 
     tc = TCoreEvents()
 
-
     print('start calculate', datetime.datetime.now())
-    tc.CalculateEvents(loc,today,future)
+    tc.CalculateEvents(loc, today, future)
     print('end calculate', datetime.datetime.now())
 
-    with open('test/events.xml','wt') as wf:
+    with open('test/events.xml', 'wt') as wf:
         tc.formatXml(wf)
-    with open('test/events.txt','wt') as wf:
+    with open('test/events.txt', 'wt') as wf:
         tc.formatText(wf)
-    with open('test/events.rtf','wt') as wf:
+    with open('test/events.rtf', 'wt') as wf:
         tc.formatRtf(wf)
-    with open('test/events.html','wt') as wf:
+    with open('test/events.html', 'wt') as wf:
         tc.writeHtml(wf)

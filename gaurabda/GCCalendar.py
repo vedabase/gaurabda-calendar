@@ -1,13 +1,14 @@
-from gaurabda.GCGregorianDate import GCGregorianDate,Today
+from gaurabda.GCGregorianDate import GCGregorianDate, Today
 from gaurabda.GCEarthData import EARTHDATA
 from gaurabda.GCPancangaDate import GCGaurabdaDate
 from gaurabda.GCLocation import GCLocation
-from gaurabda.GCDayData import GCDayData,GetFirstDayOfYear
+from gaurabda.GCDayData import GCDayData, GetFirstDayOfYear
 from gaurabda.GCEnums import MasaId
 import gaurabda.GCTithi as GCTithi
 import gaurabda.GCStrings as GCStrings
 from math import floor
 import gaurabda.GCUT as GCUT
+
 
 def GetGaurabdaYear(vc, earth):
     day = GCDayData()
@@ -16,19 +17,24 @@ def GetGaurabdaYear(vc, earth):
     return day.nGaurabdaYear
 
 
-def FormatDate(vc,va):
-    return "{} {} {}\r\n{}, {} Paksa, {} Masa, {}".format(vc.day, GCStrings.GetMonthAbreviation(vc.month), vc.year, GCStrings.GetTithiName(va.tithi%15), GCStrings.GetPaksaName(va.paksa), GCStrings.GetMasaName(va.masa), va.gyear)
+def FormatDate(vc, va):
+    return "{} {} {}\r\n{}, {} Paksa, {} Masa, {}".format(vc.day, GCStrings.GetMonthAbreviation(vc.month), vc.year,
+                                                          GCStrings.GetTithiName(va.tithi % 15),
+                                                          GCStrings.GetPaksaName(va.paksa),
+                                                          GCStrings.GetMasaName(va.masa), va.gyear)
 
-#===========================================================================
+
+# ===========================================================================
 #
-#===========================================================================
+# ===========================================================================
 
 def Gaurabda2Gregorian(va, vc, earth):
     vc.Set(GCTithi.CalcTithiDate(va.gyear, va.masa, va.paksa, va.tithi % 15, earth))
 
-#===========================================================================
+
+# ===========================================================================
 #
-#===========================================================================
+# ===========================================================================
 
 def Gregorian2Gaurabda(vc, va, earth):
     day = GCDayData()
@@ -37,20 +43,24 @@ def Gregorian2Gaurabda(vc, va, earth):
     va.tithi = day.nTithi
     va.gyear = day.nGaurabdaYear
 
+
 def CalcEndDate(m_earth, vcStart, vaStart, vcEnd, vaEnd, nType, nCount):
-    if nType==1:
+    if nType == 1:
         vcEnd.Set(vcStart)
-        if nCount > 30240: nCount = 30240
+        if nCount > 30240:
+            nCount = 30240
         vcEnd.AddDays(nCount)
         Gregorian2Gaurabda(vcEnd, vaEnd, m_earth)
-    elif nType==2:
+    elif nType == 2:
         vcEnd.Set(vcStart)
-        if nCount > 4320: nCount = 4320
-        vcEnd.AddDays(nCount*7)
+        if nCount > 4320:
+            nCount = 4320
+        vcEnd.AddDays(nCount * 7)
         Gregorian2Gaurabda(vcEnd, vaEnd, m_earth)
-    elif nType==3:
+    elif nType == 3:
         vcEnd.Set(vcStart)
-        if nCount > 1080: nCount = 1080
+        if nCount > 1080:
+            nCount = 1080
         vcEnd.month += nCount
         while vcEnd.month > 12:
             vcEnd.year += 1
@@ -58,29 +68,32 @@ def CalcEndDate(m_earth, vcStart, vaStart, vcEnd, vaEnd, nType, nCount):
         Gregorian2Gaurabda(vcEnd, vaEnd, m_earth)
     elif nType == 4:
         vcEnd.Set(vcStart)
-        if nCount > 90: nCount = 90
+        if nCount > 90:
+            nCount = 90
         vcEnd.year += nCount
         Gregorian2Gaurabda(vcEnd, vaEnd, m_earth)
     elif nType == 5:
         vaEnd.Set(vaStart)
-        if nCount > 30240: nCount = 30240
+        if nCount > 30240:
+            nCount = 30240
         vaEnd.tithi += nCount
         while vaEnd.tithi >= 30:
-            vaEnd.tithi-=30
-            vaEnd.masa+=1
+            vaEnd.tithi -= 30
+            vaEnd.masa += 1
         while vaEnd.masa >= 12:
             vaEnd.masa -= 12
-            vaEnd.gyear+=1
+            vaEnd.gyear += 1
         Gaurabda2Gregorian(vaEnd, vcEnd, m_earth)
-    elif nType==6:
+    elif nType == 6:
         vaEnd.Set(vaStart)
-        if nCount > 1080: nCount = 1080
+        if nCount > 1080:
+            nCount = 1080
         vaEnd.masa = MasaToComboMasa(vaEnd.masa)
         if vaEnd.masa == MasaId.ADHIKA_MASA:
             vcEnd.Set(vcStart)
             vcEnd.month += nCount
             while vcEnd.month > 12:
-                vcEnd.year+=1
+                vcEnd.year += 1
                 vcEnd.month -= 12
             Gregorian2Gaurabda(vcEnd, vaEnd, m_earth)
             vaEnd.tithi = vaStart.tithi
@@ -89,24 +102,26 @@ def CalcEndDate(m_earth, vcStart, vaStart, vcEnd, vaEnd, nType, nCount):
             vaEnd.masa += nCount
             while vaEnd.masa >= 12:
                 vaEnd.masa -= 12
-                vaEnd.gyear+=1
+                vaEnd.gyear += 1
             vaEnd.masa = GCCalendar.ComboMasaToMasa(vaEnd.masa)
             Gaurabda2Gregorian(vaEnd, vcEnd, m_earth)
-    elif nType==7:
+    elif nType == 7:
         vaEnd.Set(vaStart)
         if nCount > 90: nCount = 90
         vaEnd.gyear += nCount
         Gaurabda2Gregorian(vaEnd, vcEnd, m_earth)
     return 1
 
+
 def ComboMasaToMasa(nComboMasa):
     return 12 if nComboMasa == 12 else (nComboMasa + 11) % 12
+
 
 def MasaToComboMasa(nMasa):
     return 12 if nMasa == 12 else (nMasa + 1) % 12
 
-def writeFirstDayXml(xml,loc,vc):
 
+def writeFirstDayXml(xml, loc, vc):
     vcStart = GCGregorianDate(date=GetFirstDayOfYear(loc.GetEarthData(), vcStart.year))
     vcStart.InitWeekDay()
 
@@ -145,15 +160,15 @@ def unittests():
     e.latitude_deg = 45.0
     e.tzone = 1.0
     vc = Today()
-    a = GetGaurabdaYear(vc,e)
+    a = GetGaurabdaYear(vc, e)
     GCUT.msg('Gaurabda year:' + str(a))
 
     va = GCGaurabdaDate()
-    Gregorian2Gaurabda(vc,va,e)
+    Gregorian2Gaurabda(vc, va, e)
     GCUT.msg('Vatime: ' + str(va))
 
     va.prevMasa()
     va.tithi = 0
     vc2 = GCGregorianDate()
-    Gaurabda2Gregorian(va,vc2,e)
+    Gaurabda2Gregorian(va, vc2, e)
     GCUT.msg('vctime2:' + str(vc2) + ' --> ' + str(va))

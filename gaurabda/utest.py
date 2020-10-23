@@ -2,7 +2,7 @@ import gaurabda.GCMath as GCMath
 import gaurabda.GCTime as GCTime
 import gaurabda.GCUT as GCUT
 import gaurabda.GCAyanamsha as GCAyanamsha
-from gaurabda.GCEnums import FastType,MahadvadasiType
+from gaurabda.GCEnums import FastType, MahadvadasiType
 import gaurabda.GCPancangaDate as GCPancangaDate
 import gaurabda.GCDisplaySettings as GCDisplaySettings
 import gaurabda.GCStrings as GCStrings
@@ -34,8 +34,8 @@ os.mkdir('test')
 GCMath.unittests()
 GCTime.unittests()
 GCUT.info('enums')
-GCUT.val(FastType.FAST_NULL,0, 'FastType')
-GCUT.val(MahadvadasiType.EV_VIJAYA,0x110, 'MahadvadasiType')
+GCUT.val(FastType.FAST_NULL, 0, 'FastType')
+GCUT.val(MahadvadasiType.EV_VIJAYA, 0x110, 'MahadvadasiType')
 GCAyanamsha.unittests()
 GCPancangaDate.unittests()
 GCDisplaySettings.unittests()
