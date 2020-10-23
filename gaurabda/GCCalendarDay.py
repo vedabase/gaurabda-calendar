@@ -1,4 +1,4 @@
-from gaurabda.GCEnums import FeastType,FastType,MahadvadasiType,SpecialFestivalId
+from gaurabda.GCEnums import FeastType, FastType, MahadvadasiType, SpecialFestivalId
 from gaurabda.GCGregorianDate import GCGregorianDate
 from gaurabda.GCDayData import GCDayData
 from gaurabda.GCTime import GCTime
@@ -13,7 +13,8 @@ import gaurabda.GCStrings as GCStrings
 import gaurabda.GCDisplaySettings as GCDisplaySettings
 import gaurabda.GCMath as GCMath
 
-from math import floor,modf
+from math import floor, modf
+
 
 class GCCalendarDay:
     def __init__(self):
@@ -41,7 +42,7 @@ class GCCalendarDay:
         self.eparana_type1 = 0
         self.eparana_type2 = 0
         self.sankranti_zodiac = -1
-        #double sankranti_time
+        # double sankranti_time
         self.sankranti_day = GCGregorianDate()
 
     def __iter__(self):
@@ -49,7 +50,7 @@ class GCCalendarDay:
         yield 'astrodata', dict(self.astrodata)
         yield 'hasDST', self.hasDST
         yield 'feasting', self.nFeasting
-        if len(self.dayEvents)>0:
+        if len(self.dayEvents) > 0:
             yield 'events', self.dayEvents
         yield 'fast', self.nFastType
         yield 'ekadashiType', self.nMhdType
@@ -61,7 +62,7 @@ class GCCalendarDay:
                 'startReason': self.eparana_type1,
                 'endReason': self.eparana_type2
             }
-        if self.sankranti_zodiac>=0:
+        if self.sankranti_zodiac >= 0:
             yield 'sankranti', {
                 'rasi': self.sankranti_zodiac,
                 'datetime': dict(self.sankranti_day)
@@ -71,11 +72,11 @@ class GCCalendarDay:
         nCount = 1
         for ed in self.dayEvents:
             if 'disp' not in ed:
-                nCount+=1
+                nCount += 1
             else:
                 disp = int(ed['disp'])
                 if disp == -1 or GCDisplaySettings.getValue(disp):
-                    nCount+=1
+                    nCount += 1
         return nCount
 
     def Clear(self):
@@ -93,7 +94,8 @@ class GCCalendarDay:
         self.nCaturmasya = 0
 
     def GetTextA(self):
-        str = "{} {}  {} ".format(self.date.__str__().rjust(12,' '), GCStrings.GetDayOfWeek(self.date.dayOfWeek)[:2], self.GetFullTithiName().ljust(34,' '))
+        str = "{} {}  {} ".format(self.date.__str__().rjust(12, ' '), GCStrings.GetDayOfWeek(self.date.dayOfWeek)[:2],
+                                  self.GetFullTithiName().ljust(34, ' '))
 
         if GCDisplaySettings.getValue(39):
             str += GCStrings.GetPaksaChar(self.astrodata.nPaksa) + ' '
@@ -101,10 +103,10 @@ class GCCalendarDay:
             str += '  '
 
         if GCDisplaySettings.getValue(37):
-            str += '{}'.format(GCStrings.GetYogaName(self.astrodata.nYoga).ljust(10,' '))
+            str += '{}'.format(GCStrings.GetYogaName(self.astrodata.nYoga).ljust(10, ' '))
 
         if GCDisplaySettings.getValue(36):
-            str += '{}'.format(GCStrings.GetNaksatraName(self.astrodata.nNaksatra).ljust(15,' '))
+            str += '{}'.format(GCStrings.GetNaksatraName(self.astrodata.nNaksatra).ljust(15, ' '))
 
         if GCDisplaySettings.getValue(38) and self.nFastType != FastType.FAST_NULL:
             str += " *"
@@ -114,13 +116,14 @@ class GCCalendarDay:
         if GCDisplaySettings.getValue(41):
             rasi = GCRasi.GetRasi(self.astrodata.moon.longitude_deg, self.astrodata.msAyanamsa)
             if GCDisplaySettings.getValue(41) == 1:
-                str += "   {}".format(GCStrings.GetSankrantiName(rasi).ljust(15,' '))
+                str += "   {}".format(GCStrings.GetSankrantiName(rasi).ljust(15, ' '))
             else:
-                str += "   {}".format(GCStrings.GetSankrantiNameEn(rasi).ljust(15,' '))
+                str += "   {}".format(GCStrings.GetSankrantiNameEn(rasi).ljust(15, ' '))
         return str
 
     def GetTextRtf(self):
-        str = "\\par {} {}\\tab {}\\tab ".format(self.date, GCStrings.GetDayOfWeek(self.date.dayOfWeek)[:2], self.GetFullTithiName())
+        str = "\\par {} {}\\tab {}\\tab ".format(self.date, GCStrings.GetDayOfWeek(self.date.dayOfWeek)[:2],
+                                                 self.GetFullTithiName())
 
         if GCDisplaySettings.getValue(39):
             str += GCStrings.GetPaksaChar(self.astrodata.nPaksa) + ' '
@@ -148,37 +151,50 @@ class GCCalendarDay:
         str += "\r\n"
         return str
 
-
     def GetTextEP(self):
         str = ''
-        (m1,h1) = modf(self.eparana_time1)
+        (m1, h1) = modf(self.eparana_time1)
         if self.eparana_time2 >= 0.0:
-            (m2,h2) = modf(self.eparana_time2)
+            (m2, h2) = modf(self.eparana_time2)
             if GCDisplaySettings.getValue(50):
-                str += "{} {:02d}:{:02d} ({}) - {:02d}:{:02d} ({}) {}".format( GCStrings.getString(60), int(h1), int(m1*60), GCStrings.GetParanaReasonText(self.eparana_type1), int(h2), int(m2*60), GCStrings.GetParanaReasonText(self.eparana_type2), GCStrings.GetDSTSignature(self.hasDST))
+                str += "{} {:02d}:{:02d} ({}) - {:02d}:{:02d} ({}) {}".format(
+                    GCStrings.getString(60), int(h1),
+                    int(m1 * 60),
+                    GCStrings.GetParanaReasonText(
+                        self.eparana_type1), int(h2),
+                    int(m2 * 60),
+                    GCStrings.GetParanaReasonText(self.eparana_type2),
+                    GCStrings.GetDSTSignature(self.hasDST)
+                )
             else:
-                str += "{} {:02d}:{:02d} - {:02d}:{:02d} ({})".format( GCStrings.getString(60), int(h1), int(m1*60), int(h2), int(m2*60), GCStrings.GetDSTSignature(self.hasDST))
+                str += "{} {:02d}:{:02d} - {:02d}:{:02d} ({})".format(
+                    GCStrings.getString(60), int(h1), int(m1 * 60),
+                    int(h2), int(m2 * 60),
+                    GCStrings.GetDSTSignature(self.hasDST)
+                )
         elif self.eparana_time1 >= 0.0:
             if GCDisplaySettings.getValue(50):
-                str += "{} {:02d}:{:02d} ({}) {}".format(GCStrings.getString(61), int(h1), int(m1*60), GCStrings.GetParanaReasonText(self.eparana_type1), GCStrings.GetDSTSignature(self.hasDST) )
+                str += "{} {:02d}:{:02d} ({}) {}".format(GCStrings.getString(61), int(h1), int(m1 * 60),
+                                                         GCStrings.GetParanaReasonText(self.eparana_type1),
+                                                         GCStrings.GetDSTSignature(self.hasDST))
             else:
-                str += "{} {:02d}:{:02d} ({})".format(GCStrings.getString(61), int(h1), int(m1*60), GCStrings.GetDSTSignature(self.hasDST) )
+                str += "{} {:02d}:{:02d} ({})".format(GCStrings.getString(61), int(h1), int(m1 * 60),
+                                                      GCStrings.GetDSTSignature(self.hasDST))
         else:
             str = GCStrings.getString(62)
         return str
 
     def GetNaksatraTimeRange(self, earth, fromTime, toTime):
-        start = GCGregorianDate(date = self.date)
-        start.shour = self.astrodata.sun.sunrise_deg / 360 + earth.tzone/24.0
+        start = GCGregorianDate(date=self.date)
+        start.shour = self.astrodata.sun.sunrise_deg / 360 + earth.tzone / 24.0
 
         GCNaksatra.GetNextNaksatra(earth, start, toTime)
         GCNaksatra.GetPrevNaksatra(earth, start, fromTime)
         return True
 
-
     def GetTithiTimeRange(self, earth, fromTime, toTime):
-        start = GCGregorianDate(date = self.date)
-        start.shour = self.astrodata.sun.sunrise_deg / 360 + earth.tzone/24.0
+        start = GCGregorianDate(date=self.date)
+        start.shour = self.astrodata.sun.sunrise_deg / 360 + earth.tzone / 24.0
 
         GCTithi.GetNextTithiStart(earth, start, toTime)
         GCTithi.GetPrevTithiStart(earth, start, fromTime)
@@ -194,15 +210,15 @@ class GCCalendarDay:
         self.dayEvents.append(dc)
         return dc
 
-    def hasEventsOfDisplayIndex(self,dispIndex):
+    def hasEventsOfDisplayIndex(self, dispIndex):
         for md in self.dayEvents:
-            if 'disp' in md and md['disp']==dispIndex:
+            if 'disp' in md and md['disp'] == dispIndex:
                 return True
         return False
 
-    def findEventsText(self,text):
+    def findEventsText(self, text):
         for md in self.dayEvents:
-            if md['text'].find(text)>=0:
+            if md['text'].find(text) >= 0:
                 return md
         return None
 
@@ -244,7 +260,7 @@ class GCCalendarDay:
         else:
             return False
 
-        md = self.AddEvent(PRIO_FESTIVALS_0 + (nFestClass-CAL_FEST_0)*100, nFestClass, str)
+        md = self.AddEvent(PRIO_FESTIVALS_0 + (nFestClass - CAL_FEST_0) * 100, nFestClass, str)
         if fasting > 0:
             md['fasttype'] = fasting
             md["fastsubject"] = fastingSubject
@@ -253,7 +269,8 @@ class GCCalendarDay:
 
     def GetFullTithiName(self):
         str = GCStrings.GetTithiName(self.astrodata.nTithi)
-        if (self.astrodata.nTithi == 10) or (self.astrodata.nTithi == 25) or (self.astrodata.nTithi == 11) or (self.astrodata.nTithi == 26):
+        if (self.astrodata.nTithi == 10) or (self.astrodata.nTithi == 25) or (self.astrodata.nTithi == 11) or (
+                self.astrodata.nTithi == 26):
             if self.ekadasi_parana == False:
                 str += " "
                 if self.nMhdType == MahadvadasiType.EV_NULL:
@@ -263,44 +280,45 @@ class GCCalendarDay:
         return str
 
     def ConditionEvaluate(self, nClass, nValue, strText, defaultRet):
-        pcstr = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CAL_FEST_0, CAL_FEST_1, CAL_FEST_2, CAL_FEST_3, CAL_FEST_4, CAL_FEST_5, 0, 0]
+        pcstr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CAL_FEST_0, CAL_FEST_1, CAL_FEST_2, CAL_FEST_3, CAL_FEST_4, CAL_FEST_5,
+                 0, 0]
 
         # mahadvadasis
-        if nClass==1:
+        if nClass == 1:
             if nValue == MahadvadasiType.EV_NULL:
                 return (self.nMhdType != EV_NULL) and (self.nMhdType != EV_SUDDHA)
             else:
                 return self.nMhdType == nValue
         # sankrantis
-        elif nClass==2:
+        elif nClass == 2:
             if nValue == 0xff:
                 return self.sankranti_zodiac >= 0
             else:
                 return self.sankranti_zodiac == nValue
         # tithi + paksa
-        elif nClass==3:
+        elif nClass == 3:
             return self.astrodata.nTithi == nValue
         # naksatras
-        elif nClass==4:
+        elif nClass == 4:
             return self.astrodata.nNaksatra == nValue
         # yogas
-        elif nClass==5:
+        elif nClass == 5:
             return self.astrodata.nYoga == nValue
         # fast days
-        elif nClass==6:
+        elif nClass == 6:
             if nValue == 0:
                 return self.nFastType != FastType.FAST_NULL
             else:
                 return self.nFastType == (0x200 + nValue)
 
         # week day
-        elif nClass==7:
+        elif nClass == 7:
             return self.date.dayOfWeek == nValue
         # tithi
-        elif nClass==8:
+        elif nClass == 8:
             return self.astrodata.nTithi % 15 == nValue
         # paksa
-        elif nClass==9:
+        elif nClass == 9:
             return self.astrodata.nPaksa == nValue
         elif nClass in [10, 11, 12, 13, 14]:
             if nValue == 0xffff:
@@ -308,12 +326,12 @@ class GCCalendarDay:
             else:
                 if self.astrodata.nMasa == 12:
                     return False
-                if abs(self.astrodata.nTithi + self.astrodata.nMasa*30 - nValue + 200) > 2:
+                if abs(self.astrodata.nTithi + self.astrodata.nMasa * 30 - nValue + 200) > 2:
                     return False
                 if self.findEventsText(strText) != 0:
                     return True
             return False
-        elif nClass==15:
+        elif nClass == 15:
             if nValue == 0xffff:
                 return False
             else:
