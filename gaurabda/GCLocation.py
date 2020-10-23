@@ -4,30 +4,32 @@ import gaurabda.GCTimeZone as GCTimeZone
 import gaurabda.GCUT as GCUT
 import re
 
-def ParseDegreesFromString(str,bNorth):
+
+def ParseDegreesFromString(str, bNorth):
     lat = lon = None
-    m = re.match( r'(\+\-*)(\d+)([W|E|N|S])(\d+)', str )
+    m = re.match(r'(\+\-*)(\d+)([W|E|N|S])(\d+)', str)
     if m:
-        val = int(m.group(2)) + int(m.group(4))/60
-        if m.group(1)=='-':
+        val = int(m.group(2)) + int(m.group(4)) / 60
+        if m.group(1) == '-':
             val = -val
-        if m.group(3)=='W':
+        if m.group(3) == 'W':
             lon = -val
-        elif m.group(3)=='E':
+        elif m.group(3) == 'E':
             lon = val
-        elif m.group(3)=='S':
+        elif m.group(3) == 'S':
             lat = -val
-        elif m.group(3)=='N':
+        elif m.group(3) == 'N':
             lat = val
-        elif m.group(3)=='.':
+        elif m.group(3) == '.':
             if bNorth:
                 lat = val
             else:
                 lon = val
-    return lon,lat
+    return lon, lat
+
 
 class GCLocation:
-    def __init__(self,data=None):
+    def __init__(self, data=None):
         self.Empty()
         if data:
             if 'name' in data:
@@ -48,7 +50,7 @@ class GCLocation:
                 tzone = GCTimeZone.GetTimeZone(name=data['tzname'])
                 self.m_nTimezoneId = tzone['id']
                 self.m_strTimeZone = data['tzname']
-                self.m_fTimezone = tzone['offset']/60.0
+                self.m_fTimezone = tzone['offset'] / 60.0
             elif 'offset' in data:
                 self.m_fTimezone = data['offset']
 
@@ -63,7 +65,6 @@ class GCLocation:
     @property
     def m_strFullName(self):
         return str(self)
-
 
     def data(self):
         return {
@@ -88,17 +89,18 @@ class GCLocation:
         self.m_strCity = ''
 
     def __str__(self):
-        return "{} ({}, {}, {}: {})".format(self.m_strName, self.m_strLatitude, self.m_strLongitude, GCStrings.getString(12), self.m_strTimeZone)
+        return "{} ({}, {}, {}: {})".format(self.m_strName, self.m_strLatitude, self.m_strLongitude,
+                                            GCStrings.getString(12), self.m_strTimeZone)
 
     def __iter__(self):
-        for k,v in self.data().items():
-            yield k,v
+        for k, v in self.data().items():
+            yield k, v
 
     def __dict__(self):
         return self.data()
 
     def copy(self):
-        return GCLocation(data = self.data())
+        return GCLocation(data=self.data())
 
     def GetEarthData(self):
         e = GCEarthData.EARTHDATA()
@@ -108,14 +110,14 @@ class GCLocation:
         e.tzone = self.m_fTimezone
         return e
 
-    def Set(self,L):
-        if isinstance(L,GCEarthData.EARTHDATA):
+    def Set(self, L):
+        if isinstance(L, GCEarthData.EARTHDATA):
             self.m_fLongitude = L.longitude_deg
             self.m_fLatitude = L.latitude_deg
             self.m_nTimezoneId = L.dst
             self.m_strTimeZone = GCTimeZone.GetTimeZoneName(id=self.m_nTimezoneId)
             self.m_fTimezone = GCTimeZone.GetTimeZoneOffset(id=self.m_nTimezoneId)
-        elif isinstance(L,GCLocation):
+        elif isinstance(L, GCLocation):
             self.m_strTimeZone = L.m_strTimeZone
             self.m_strName = L.m_strName
             self.m_strCity = L.m_strCity

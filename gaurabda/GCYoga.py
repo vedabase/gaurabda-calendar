@@ -1,14 +1,15 @@
 from gaurabda.GCMoonData import MOONDATA
 from gaurabda.GCSunData import SUNDATA, GetSunLongitude
-from gaurabda.GCGregorianDate import GCGregorianDate,Today
+from gaurabda.GCGregorianDate import GCGregorianDate, Today
 import gaurabda.GCEarthData as GCEarthData
 import gaurabda.GCAyanamsha as GCAyanamsha
 import gaurabda.GCMath as GCMath
 import gaurabda.GCUT as GCUT
 from math import floor
 
+
 def GetNextYogaStart(ed, startDate, nextDate):
-    phi = 40.0/3.0
+    phi = 40.0 / 3.0
     jday = startDate.GetJulianComplete()
     moon = MOONDATA()
     d = GCGregorianDate(date=startDate)
@@ -19,8 +20,8 @@ def GetNextYogaStart(ed, startDate, nextDate):
     ayanamsha = GCAyanamsha.GetAyanamsa(jday)
     moon.Calculate(jday, ed)
     sunl = GetSunLongitude(d)
-    l1 = GCMath.putIn360( moon.longitude_deg + sunl - 2*ayanamsha)
-    prev_tit = int(floor(l1/phi))
+    l1 = GCMath.putIn360(moon.longitude_deg + sunl - 2 * ayanamsha)
+    prev_tit = int(floor(l1 / phi))
 
     counter = 0
     while counter < 20:
@@ -33,20 +34,21 @@ def GetNextYogaStart(ed, startDate, nextDate):
 
         moon.Calculate(jday, ed)
         sunl = GetSunLongitude(d)
-        l2 = GCMath.putIn360( moon.longitude_deg + sunl - 2*ayanamsha)
-        new_tit = int(floor(l2/phi))
+        l2 = GCMath.putIn360(moon.longitude_deg + sunl - 2 * ayanamsha)
+        new_tit = int(floor(l2 / phi))
 
         if prev_tit != new_tit:
             jday = xj
             d.Set(xd)
             scan_step *= 0.5
-            counter+=1
+            counter += 1
             continue
         else:
             l1 = l2
     nextDate.Set(d)
 
     return new_tit
+
 
 def unittests():
     GCUT.info('yoga')
@@ -56,5 +58,5 @@ def unittests():
     e.tzone = 1.0
     vc = Today()
     vc2 = GCGregorianDate()
-    GetNextYogaStart(e,vc,vc2)
+    GetNextYogaStart(e, vc, vc2)
     print('Next yoga:', repr(vc2))

@@ -1,4 +1,4 @@
-from gaurabda.GCGregorianDate import GCGregorianDate,Today
+from gaurabda.GCGregorianDate import GCGregorianDate, Today
 from gaurabda.GCLocation import GCLocation
 import gaurabda.GCMath as GCMath
 import gaurabda.GCAyanamsha as GCAyanamsha
@@ -11,38 +11,41 @@ import gaurabda.GCUT as GCUT
 
 sankrantiDetermineType = 2
 
+
 def GetSankrantiType():
     return sankrantiDetermineType
+
 
 def SetSankrantiType(i):
     prev = sankrantiDetermineType
     sankrantiDetermineType = i
     return prev
 
+
 def GetSankMethodName(i):
     snam = ["midnight to midnight",
-        "sunrise to sunrise",
-        "noon to noon",
-        "sunset to sunset"]
+            "sunrise to sunrise",
+            "noon to noon",
+            "sunset to sunset"]
     return snam[i]
 
 
-#********************************************************************/
+# ********************************************************************/
 #  Finds next time when rasi is changed                             */
 #                                                                   */
 #  startDate - starting date and time, timezone member must be valid */
 #  zodiac [out] - found zodiac sign into which is changed           */
 #                                                                   */
-#********************************************************************/
+# ********************************************************************/
 def GetNextSankranti(startDate):
     zodiac = 0
     step = 1.0
     count = 0
     prevday = GCGregorianDate()
 
-    d = GCGregorianDate(date = startDate)
+    d = GCGregorianDate(date=startDate)
 
-    prev = GCMath.putIn360( GCSunData.GetSunLongitude(d) - GCAyanamsha.GetAyanamsa(d.GetJulian()))
+    prev = GCMath.putIn360(GCSunData.GetSunLongitude(d) - GCAyanamsha.GetAyanamsa(d.GetJulian()))
     prev_rasi = int(floor(prev / 30.0))
 
     while count < 20:
@@ -51,23 +54,23 @@ def GetNextSankranti(startDate):
         d.NormalizeHours()
 
         ld = GCMath.putIn360(GCSunData.GetSunLongitude(d) - GCAyanamsha.GetAyanamsa(d.GetJulian()))
-        new_rasi = int(floor(ld/30.0))
+        new_rasi = int(floor(ld / 30.0))
 
         if prev_rasi != new_rasi:
             zodiac = new_rasi
             step *= 0.5
             d.Set(prevday)
-            count+=1
+            count += 1
             continue
 
-    return d,zodiac
+    return d, zodiac
 
 
 def writeXml(xml, loc, vcStart, vcEnd):
     dt = GCTime()
     zodiac = 0
 
-    d = GCGregorianDate(date = vcStart)
+    d = GCGregorianDate(date=vcStart)
 
     xml.write("<xml>\n")
     xml.write("\t<request name=\"Sankranti\" version=\"")
@@ -95,7 +98,7 @@ def writeXml(xml, loc, vcStart, vcEnd):
     xml.write("\t<result name=\"SankrantiList\">\n")
 
     while d.IsBeforeThis(vcEnd):
-        nextDate,zodiac = GetNextSankranti(d)
+        nextDate, zodiac = GetNextSankranti(d)
         d.Set(nextDate)
         d.InitWeekDay()
         xml.write("\t\t<sank date=\"")
@@ -107,7 +110,7 @@ def writeXml(xml, loc, vcStart, vcEnd):
         xml.write(GCStrings.getString(d.dayOfWeek))
         xml.write("\" ")
 
-        dt.SetDegTime( 360 * d.shour )
+        dt.SetDegTime(360 * d.shour)
 
         xml.write(" time=\"")
         xml.write(repr(dt))
@@ -134,7 +137,7 @@ def unittests():
     GCUT.info('sankranti')
     vc = Today()
     vc2 = GCGregorianDate()
-    vc3 = GCGregorianDate(date = vc)
+    vc3 = GCGregorianDate(date=vc)
     vc3.AddDays(100)
     n = GetSankMethodName(GetSankrantiType())
     GCUT.msg('Sankranti Type: {}'.format(n))

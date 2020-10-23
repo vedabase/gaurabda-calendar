@@ -1,4 +1,4 @@
-from gaurabda.GCGregorianDate import GCGregorianDate,Today
+from gaurabda.GCGregorianDate import GCGregorianDate, Today
 import gaurabda.GCEarthData as GCEarthData
 import gaurabda.GCMath as GCMath
 import math
@@ -7,8 +7,7 @@ import gaurabda.GCMoonData as GCMoonData
 import gaurabda.GCSunData as GCSunData
 
 
-
-#********************************************************************/
+# ********************************************************************/
 #                                                                   */
 #  m1 - previous moon position                                      */
 #  m2 - next moon position                                          */
@@ -22,11 +21,13 @@ import gaurabda.GCSunData as GCSunData
 #  this function tests whether conjunction occurs between           */
 #  these two moments                                                */
 #                                                                   */
-#********************************************************************/
+# ********************************************************************/
 
 def IsConjunction(m1, s1, s2, m2):
-    if m2 < m1: m2 += 360.0
-    if s2 < s1: s2 += 360.0
+    if m2 < m1:
+        m2 += 360.0
+    if s2 < s1:
+        s2 += 360.0
     if (m1 <= s1) and (s1 < s2) and (s2 <= m2):
         return True
 
@@ -37,7 +38,8 @@ def IsConjunction(m1, s1, s2, m2):
 
     return (m1 <= s1) and (s1 < s2) and (s2 <= m2)
 
-###################################/
+
+# ##################################
 # GET PREVIOUS CONJUNCTION OF THE SUN AND MOON
 #
 # THIS IS HELP FUNCTION FOR GetPrevConjunction(GCGregorianDate test_date,
@@ -64,7 +66,6 @@ def GetPrevConjunction(date, earth, forward=False):
     dir = 1.0 if forward else -1.0
     moon = GCMoonData.MOONDATA()
 
-
     d = GCGregorianDate(date=date)
     d.shour = 0.5
     d.tzone = 0.0
@@ -90,28 +91,32 @@ def GetPrevConjunction(date, earth, forward=False):
 
         if IsConjunction(nowMoon, nowSun, prevSun, prevMoon):
             # now it calculates actual time and zodiac of conjunction
-            if prevDiff == nowDiff: return 0
+            if prevDiff == nowDiff:
+                return 0
             x = math.fabs(nowDiff) / math.fabs(prevDiff - nowDiff)
             if x < 0.5:
-                if forward: d.PreviousDay()
+                if forward:
+                    d.PreviousDay()
                 d.shour = x + 0.5
             else:
-                if not forward: d.NextDay()
+                if not forward:
+                    d.NextDay()
                 d.shour = x - 0.5
             date.Set(d)
             prevSun = GCMath.putIn360(prevSun)
             nowSun = GCMath.putIn360(nowSun)
             if math.fabs(prevSun - nowSun) > 10.0:
-                return GCMath.putIn180(nowSun) + (GCMath.putIn180(prevSun) - GCMath.putIn180(nowSun))*x
+                return GCMath.putIn180(nowSun) + (GCMath.putIn180(prevSun) - GCMath.putIn180(nowSun)) * x
             else:
-                return nowSun + (prevSun - nowSun)*x
+                return nowSun + (prevSun - nowSun) * x
         prevSun = nowSun
         prevMoon = nowMoon
         prevDiff = nowDiff
 
     return 1000.0
 
-###################################/
+
+# ##################################
 # GET NEXT CONJUNCTION OF THE SUN AND MOON
 #
 # Help function for GetNextConjunction(GCGregorianDate test_date, GCGregorianDate &found,
@@ -132,25 +137,25 @@ def GetPrevConjunction(date, earth, forward=False):
 def GetNextConjunction(date, earth):
     return GetPrevConjunction(date, earth, forward=True)
 
-#********************************************************************/
-#                                                                   */
-#                                                                   */
-#                                                                   */
-#                                                                   */
-#                                                                   */
-#********************************************************************/
 
-def GetPrevConjunctionEx(test_date, found, this_conj, earth, forward = False):
+# ********************************************************************/
+#                                                                   */
+#                                                                   */
+#                                                                   */
+#                                                                   */
+#                                                                   */
+# ********************************************************************/
+
+def GetPrevConjunctionEx(test_date, found, this_conj, earth, forward=False):
     phi = 12.0
     dir = 1.0 if forward else -1.0
     if this_conj:
         test_date.shour += 0.2 * dir
         test_date.NormalizeHours()
 
-
     jday = test_date.GetJulianComplete()
     moon = GCMoonData.MOONDATA()
-    d = GCGregorianDate(date = test_date)
+    d = GCGregorianDate(date=test_date)
     xd = GCGregorianDate()
     scan_step = 1.0
     prev_tit = 0
@@ -159,21 +164,21 @@ def GetPrevConjunctionEx(test_date, found, this_conj, earth, forward = False):
     moon.Calculate(jday, earth)
     sunl = GCSunData.GetSunLongitude(d)
     l1 = GCMath.putIn180(moon.longitude_deg - sunl)
-    prev_tit = int(math.floor(l1/phi))
+    prev_tit = int(math.floor(l1 / phi))
 
-    counter=0
-    while counter<20:
+    counter = 0
+    while counter < 20:
         xj = jday
         xd.Set(d)
 
-        jday += scan_step*dir
-        d.shour += scan_step*dir
+        jday += scan_step * dir
+        d.shour += scan_step * dir
         d.NormalizeHours()
 
         moon.Calculate(jday, earth)
         sunl = GCSunData.GetSunLongitude(d)
         l2 = GCMath.putIn180(moon.longitude_deg - sunl)
-        new_tit = int(math.floor(l2/phi))
+        new_tit = int(math.floor(l2 / phi))
 
         if forward:
             is_change = prev_tit < 0 and new_tit >= 0
@@ -184,7 +189,7 @@ def GetPrevConjunctionEx(test_date, found, this_conj, earth, forward = False):
             jday = xj
             d.Set(xd)
             scan_step *= 0.5
-            counter+=1
+            counter += 1
         else:
             l1 = l2
             prev_tit = new_tit
@@ -192,33 +197,34 @@ def GetPrevConjunctionEx(test_date, found, this_conj, earth, forward = False):
     found.Set(d)
     return sunl
 
-#********************************************************************/
+
+# ********************************************************************/
 #                                                                   */
 #                                                                   */
 #                                                                   */
 #                                                                   */
 #                                                                   */
-#********************************************************************/
+# ********************************************************************/
 
 def GetNextConjunctionEx(test_date, found, this_conj, earth):
-    return GetPrevConjunctionEx(test_date, found, this_conj, earth, forward = True)
+    return GetPrevConjunctionEx(test_date, found, this_conj, earth, forward=True)
 
 
 def unittests():
     GCUT.info('conjunctions')
     b = IsConjunction(10, 11, 12, 20)
-    GCUT.val(b,True,'is conjunction')
+    GCUT.val(b, True, 'is conjunction')
 
     e = GCEarthData.EARTHDATA()
     e.longitude_deg = 27.0
     e.latitude_deg = 45.0
     e.tzone = 1.0
     vc = Today()
-    vc2 = GCGregorianDate(date = vc)
-    vc3 = GCGregorianDate(date = vc)
+    vc2 = GCGregorianDate(date=vc)
+    vc3 = GCGregorianDate(date=vc)
 
-    l = GetPrevConjunction(vc2,e)
+    l = GetPrevConjunction(vc2, e)
     GCUT.msg('Conjunction on: {}'.format(repr(vc2)))
     vc2.Set(vc)
-    l = GetNextConjunctionEx(vc2,vc3,True,e)
+    l = GetNextConjunctionEx(vc2, vc3, True, e)
     GCUT.msg('Conjunction on: {}'.format(repr(vc3)))

@@ -11,21 +11,22 @@ import gaurabda.GCUT as GCUT
 
 import math
 
-def CalculateMidnightNaksatra(date,earth):
+
+def CalculateMidnightNaksatra(date, earth):
     moon = MOONDATA()
-    date = GCGregorianDate(date = date)
+    date = GCGregorianDate(date=date)
     date.shour = 1.0
     jdate = date.GetJulianDetailed()
     moon.Calculate(jdate, earth)
-    d = GCMath.putIn360( moon.longitude_deg - GCAyanamsha.GetAyanamsa(jdate))
-    return math.floor(( d * 3.0) / 40.0 )
+    d = GCMath.putIn360(moon.longitude_deg - GCAyanamsha.GetAyanamsa(jdate))
+    return math.floor((d * 3.0) / 40.0)
 
 
 def GetNextNaksatra(ed, startDate, nextDate, forward=True):
-    phi = 40.0/3.0
+    phi = 40.0 / 3.0
     jday = startDate.GetJulianComplete()
     moon = MOONDATA()
-    d = GCGregorianDate(date = startDate)
+    d = GCGregorianDate(date=startDate)
     ayanamsa = GCAyanamsha.GetAyanamsa(jday)
     prev_naks = 0
     new_naks = -1
@@ -49,20 +50,22 @@ def GetNextNaksatra(ed, startDate, nextDate, forward=True):
 
         moon.Calculate(jday, ed)
         l2 = GCMath.putIn360(moon.longitude_deg - ayanamsa)
-        new_naks = int(math.floor(l2/phi))
+        new_naks = int(math.floor(l2 / phi))
         if prev_naks != new_naks:
             jday = xj
             d.Set(xd)
             scan_step *= 0.5
-            counter+=1
+            counter += 1
             continue
         else:
             l1 = l2
     nextDate.Set(d)
     return new_naks
 
+
 def GetPrevNaksatra(ed, startDate, nextDate):
     return GetNextNaksatra(ed, startDate, nextDate, forward=False)
+
 
 def writeXml(xml, loc, vc, nDaysCount):
     date = GCGregorianDate()
@@ -89,7 +92,7 @@ def writeXml(xml, loc, vc, nDaysCount):
     xml.write("\t</request>\n")
     xml.write("\t<result name=\"Naksatra\">\n")
 
-    d = GCGregorianDate(date = vc)
+    d = GCGregorianDate(date=vc)
     d.tzone = loc.m_fTimezone
     dn = GCGregorianDate()
     dt = GCTime()
@@ -107,7 +110,7 @@ def writeXml(xml, loc, vc, nDaysCount):
         xml.write("\" name=\"")
         xml.write(GCStrings.GetNaksatraName(nak))
         xml.write("\" ")
-        dt.SetDegTime( d.shour * 360)
+        dt.SetDegTime(d.shour * 360)
         xml.write("starttime=\"")
         xml.write(repr(dt))
         xml.write("\" />\n")
@@ -119,19 +122,20 @@ def writeXml(xml, loc, vc, nDaysCount):
 
         xml.write("\t\t</day>\n");
         d.Set(dn)
-        d.shour += 1.0/8.0
-
+        d.shour += 1.0 / 8.0
 
     xml.write("\t</result>\n")
     xml.write("</xml>\n")
     return 1
 
+
 def GetEndHour(earth, yesterday, today):
     nend = GCGregorianDate()
-    snd = GCGregorianDate(date = yesterday)
+    snd = GCGregorianDate(date=yesterday)
     snd.shour = 0.5
     GetNextNaksatra(earth, snd, nend)
     return nend.GetJulian() - today.GetJulian() + nend.shour
+
 
 def unittests():
     GCUT.info('naksatra')
@@ -141,10 +145,10 @@ def unittests():
     e.tzone = 1.0
     vc = Today()
     vc2 = GCGregorianDate()
-    vc3 = GCGregorianDate(date = vc)
+    vc3 = GCGregorianDate(date=vc)
     vc3.NextDay()
-    n = GetEndHour(e,vc,vc3)
-    GCUT.msg('End hour: {}, {}'.format(n,repr(vc3)))
+    n = GetEndHour(e, vc, vc3)
+    GCUT.msg('End hour: {}, {}'.format(n, repr(vc3)))
     import io
     s = io.StringIO()
     clr = GCLocation.GCLocation()
